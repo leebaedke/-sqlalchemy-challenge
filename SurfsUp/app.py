@@ -120,14 +120,45 @@ def last_year_of_tobs():
 
     return jsonify(tobs_list)
 
-# A start route that Accepts the start and end dates as parameters from the URL 
-#@app.route('
+# A start route that Accepts the start date as a parameter from the URL.
+# and Returns the min, max, and average temperatures calculated from the given start date to the end of the dataset
+@app.route('/api/v1.0/<start>')
+def start(start):
+    results = session.query(func.min(Measurement.tobs),
+                          func.max(Measurement.tobs),
+                          func.avg(Measurement.tobs)).\
+                          filter(Measurement.date >= start).all()
+    
+    start_data =  []
+    for min, max, avg in results:
+        start_dict = {}
+        start_dict['Min'] = min
+        start_dict['Max'] = max
+        start_dict['Avg'] = avg
+        start_data.append(start_dict)
+ 
 
+    return jsonify(start_data)
 
 # A start/end route that Returns the min, max, and average temperatures calculated from the given start date to the given end date         
-#@app.route('
+@app.route('/api/v1.0/<start>/<end>')
+def start_end(start,end):
+    results = session.query(func.min(Measurement.tobs),
+                          func.max(Measurement.tobs),
+                          func.avg(Measurement.tobs)).\
+                          filter(Measurement.date >= start).\
+                          filter(Measurement.date <= end).all()
+    
+    start_end_data =  []
+    for min, max, avg in results:
+        start_end_dict = {}
+        start_end_dict['Min'] = min
+        start_end_dict['Max'] = max
+        start_end_dict['Avg'] = avg
+        start_end_data.append(start_end_dict)
+    
 
-
+    return jsonify(start_end_data)
            
 if __name__ == "__main__":
     app.run(debug=True)
